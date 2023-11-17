@@ -1,10 +1,17 @@
 class Anotacao {
   int? id;
-  String titulo;
-  String descricao;
-  String data;
+  late String titulo;
+  late String descricao;
+  late String data;
 
   Anotacao(this.titulo, this.descricao, this.data);
+
+  Anotacao.fromMap(Map map) {
+    id = map["id"];
+    titulo = map["titulo"];
+    descricao = map["descricao"];
+    data = map["data"];
+  }
 
   Map toMap() {
     Map<String, dynamic> map = {
