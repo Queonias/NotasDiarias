@@ -17,12 +17,22 @@ class _HomeState extends State<Home> {
   final _db = AnotacaoHelper();
   List<Anotacao> _anotacoes = [];
 
-  _exibirTelaCadastro() {
+  _exibirTelaCadastro({Anotacao? anotacao}) {
+    String textoSalvarAtualizar = "";
+    if (anotacao == null) {
+      _tituloController.text = "";
+      _descricaoController.text = "";
+      textoSalvarAtualizar = "Salvar";
+    } else {
+      _tituloController.text = anotacao.titulo;
+      _descricaoController.text = anotacao.descricao;
+      textoSalvarAtualizar = "Atualizar";
+    }
     showDialog(
       context: context,
       builder: (context) {
         return AlertDialog(
-          title: const Text("Adicionar anotação"),
+          title: Text("$textoSalvarAtualizar anotação"),
           content: Center(
             child: Column(
               mainAxisSize: MainAxisSize.min,
@@ -50,9 +60,9 @@ class _HomeState extends State<Home> {
             TextButton(
               onPressed: () {
                 Navigator.pop(context);
-                _salvarAnotacao();
+                _salvarAtualizarAnotacao(anotacao);
               },
-              child: const Text("Salvar"),
+              child: Text(textoSalvarAtualizar),
             ),
           ],
         );
@@ -60,13 +70,20 @@ class _HomeState extends State<Home> {
     );
   }
 
-  _salvarAnotacao() async {
+  _salvarAtualizarAnotacao(Anotacao? anotacaoSelecionada) async {
     String titulo = _tituloController.text;
     String descricao = _descricaoController.text;
 
-    Anotacao anotacao = Anotacao(titulo, descricao, DateTime.now().toString());
-    int resultado = await _db.salvarAnotacao(anotacao);
-    print("resultado: $resultado");
+    if (anotacaoSelecionada == null) {
+      Anotacao anotacao =
+          Anotacao(titulo, descricao, DateTime.now().toString());
+      await _db.salvarAnotacao(anotacao);
+    } else {
+      anotacaoSelecionada.titulo = titulo;
+      anotacaoSelecionada.descricao = descricao;
+      anotacaoSelecionada.data = DateTime.now().toString();
+      int resultado = await _db.atualizarAnotacao(anotacaoSelecionada);
+    }
 
     _tituloController.clear();
     _descricaoController.clear();
@@ -125,6 +142,33 @@ class _HomeState extends State<Home> {
                   title: Text(item.titulo),
                   subtitle:
                       Text("${_formatarData(item.data)} - ${item.descricao}"),
+                  trailing: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      GestureDetector(
+                        onTap: () {
+                          _exibirTelaCadastro(anotacao: item);
+                        },
+                        child: const Padding(
+                          padding: EdgeInsets.only(right: 16),
+                          child: Icon(
+                            Icons.edit,
+                            color: Colors.green,
+                          ),
+                        ),
+                      ),
+                      GestureDetector(
+                        onTap: () {},
+                        child: const Padding(
+                          padding: EdgeInsets.only(right: 0),
+                          child: Icon(
+                            Icons.remove_circle,
+                            color: Colors.red,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               );
             },
