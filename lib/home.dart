@@ -82,7 +82,7 @@ class _HomeState extends State<Home> {
       anotacaoSelecionada.titulo = titulo;
       anotacaoSelecionada.descricao = descricao;
       anotacaoSelecionada.data = DateTime.now().toString();
-      int resultado = await _db.atualizarAnotacao(anotacaoSelecionada);
+      await _db.atualizarAnotacao(anotacaoSelecionada);
     }
 
     _tituloController.clear();
@@ -123,6 +123,12 @@ class _HomeState extends State<Home> {
     _recuperarAnotacoes();
   }
 
+  _removerAnotacao(int? id) async {
+    print(id);
+    await _db.removerAnotacao(id);
+    _recuperarAnotacoes();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -158,7 +164,9 @@ class _HomeState extends State<Home> {
                         ),
                       ),
                       GestureDetector(
-                        onTap: () {},
+                        onTap: () {
+                          _removerAnotacao(item.id);
+                        },
                         child: const Padding(
                           padding: EdgeInsets.only(right: 0),
                           child: Icon(
